@@ -6,6 +6,10 @@ An example Shop built with React which uses the REST API of the WooCommerce Prod
 
 Requires [WooCommerce Product Search](https://woocommerce.com/products/woocommerce-product-search/) version 6.0.0 or later and [WooCommerce](https://wordpress.org/plugins/woocommerce/).
 
+## Documentation
+
+Visit the [REST API](https://woocommerce.com/document/woocommerce-product-search/api/rest/) section of the documentation for the WooCommerce Product Search extension.
+
 ## Build
 
 ```bash
