@@ -21,6 +21,6 @@ $ npm run build
 
 ## Test
 
-Assuming that you have cloned the repository and built the example in your web server's root directory:
+Assuming that you have cloned the repository on localhost and built the example in its web server's root directory:
 
 Open http://localhost/wps-react-rest-shop/index.html in your browser.
