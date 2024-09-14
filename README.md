@@ -8,7 +8,7 @@ Requires [WooCommerce Product Search](https://woocommerce.com/products/woocommer
 
 ## Documentation
 
-Visit the [REST API](https://woocommerce.com/document/woocommerce-product-search/api/rest/) section of the documentation for the WooCommerce Product Search extension.
+Visit the [REST API](https://woocommerce.com/document/woocommerce-product-search/api/rest/) section of the documentation for the [WooCommerce Product Search](https://woocommerce.com/products/woocommerce-product-search/) extension.
 
 ## Build
 
