@@ -8,5 +8,15 @@ Requires [WooCommerce Product Search](https://woocommerce.com/products/woocommer
 
 ## Build
 
+```bash
+# Install required things
 $ npm install
+# Build the example
 $ npm run build
+```
+
+## Test
+
+Assuming that you have cloned the repository and built the example in your web server's root directory:
+
+Open http://localhost/wps-react-rest-shop/index.html in your browser.
