@@ -4,13 +4,16 @@
 	margin: 0;
 	border: none;
 }
+
 html {
 	color: #333;
 	font-family: sans-serif;
 	font-size: 16px;
+	padding: 32px;
 }
+
 body {
-	margin: 1 em;
+	background-color: #fefeff;
 }
 
 h1 {
