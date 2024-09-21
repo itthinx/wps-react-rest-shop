@@ -91,10 +91,19 @@ function Category ( { item, handleTermClick, terms } ) {
 		cssClass += ' active';
 	}
 
+	if ( item.parent ) {
+		cssClass += ' child';
+	} else {
+		cssClass += ' parent';
+	}
+
 	return (
+		item.count > 0 ?
 		<div className={cssClass} onClick={onClick}>
-			{item.name}
+			<span className="name">{item.name}</span> <span className="count">{item.count}</span>
 		</div>
+		:
+		''
 	);
 }
 
@@ -299,11 +308,13 @@ export default function Shop() {
 	return (
 		<>
 			<TextInputDelayed delay="500" handleUpdate={handleUpdate} placeholder="Search products &hellip;" />
-			<Categories items={categories} handleTermClick={handleTermClick} terms={terms} />
-			<Products items={products} />
+			<div className="showcase">
+				<Categories items={categories} handleTermClick={handleTermClick} terms={terms} />
+				<Products items={products} />
+			</div>
 			<p className="counts">
-				Showing {count} of {total}
-			</p>
+							Showing {count} of {total}
+						</p>
 			<p className="endpoint-info">
 				This example uses the endpoint of the demo site for the <a href="https://woocommerce.com/product/woocommerce-product-search">WooCommerce Product Search</a> extension by default.
 				You can input the URL of your own site below.
