@@ -2,7 +2,7 @@
  * Shop.jsx
  *
  * Copyright (c) 2024 "kento" Karim Rahimpur www.itthinx.com
- * 
+ *
  * This code is released under the GNU General Public License.
  * See COPYRIGHT.txt and LICENSE.txt.
  *
@@ -21,6 +21,9 @@ import { useState } from 'react';
 import { useEffect } from 'react';
 import { useRef } from 'react';
 
+/**
+ * Products container component.
+ */
 function Products( { items } ) {
 	return (
 		<div className="products">
@@ -33,6 +36,9 @@ function Products( { items } ) {
 	);
 }
 
+/**
+ * Product component.
+ */
 function Product( { item } ) {
 	let image = null;
 
@@ -67,6 +73,9 @@ function Product( { item } ) {
 	);
 }
 
+/**
+ * Categories container component.
+ */
 function Categories ( { items, handleTermClick, terms } ) {
 	return (
 			<div className="categories">
@@ -79,6 +88,9 @@ function Categories ( { items, handleTermClick, terms } ) {
 		);
 }
 
+/**
+ * Cagegory component.
+ */
 function Category ( { item, handleTermClick, terms } ) {
 
 	function onClick( event ) {
@@ -112,7 +124,10 @@ function Category ( { item, handleTermClick, terms } ) {
  * so we don't have to react on every single keystroke right when it happens.
  *
  * @param int delay how many milliseconds to wait after the text input has changed before calling the update handler
- * @param function the update handler
+ * @param function handleUpdate the update handler
+ * @param string placeholder text used as placeholder
+ * @param string value current value
+ * @param string cssClass CSS class to use
  */
 function TextInputDelayed( { delay, handleUpdate, placeholder, value, cssClass } ) {
 
@@ -175,6 +190,10 @@ function TextInputDelayed( { delay, handleUpdate, placeholder, value, cssClass }
 	);
 }
 
+/**
+ * Add a trailing slash if there is none.
+ * @param string s
+ */
 function trailingSlash( s ) {
 	if ( s.substr( -1 ) !== '/' ) {
 		s = s + '/';
@@ -182,6 +201,9 @@ function trailingSlash( s ) {
 	return s;
 }
 
+/**
+ * Shop React Component.
+ */
 export default function Shop() {
 
 	const [shopUrl, setShopUrl] = useState( 'https://demo.itthinx.com/wps' );

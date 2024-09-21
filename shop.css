@@ -12,6 +12,10 @@ html {
 	padding: 32px;
 }
 
+a {
+	color: #333;
+}
+
 body {
 	background-color: #fefeff;
 }
