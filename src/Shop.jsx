@@ -67,6 +67,37 @@ function Product( { item } ) {
 	);
 }
 
+function Categories ( { items, handleTermClick, terms } ) {
+	return (
+			<div className="categories">
+			{
+				items.map(
+					item => <Category key={item.id} item={item} handleTermClick={handleTermClick} terms={terms} />
+				)
+			}
+			</div>
+		);
+}
+
+function Category ( { item, handleTermClick, terms } ) {
+
+	function onClick( event ) {
+		handleTermClick( item.id );
+	}
+
+	let cssClass = "category";
+
+	if ( terms.includes( item.id ) ) {
+		cssClass += ' active';
+	}
+
+	return (
+		<div className={cssClass} onClick={onClick}>
+			{item.name}
+		</div>
+	);
+}
+
 /**
  * A text input field functional React component that allows to schedule a delayed call to an update handler,
  * so we don't have to react on every single keystroke right when it happens.
@@ -74,7 +105,7 @@ function Product( { item } ) {
  * @param int delay how many milliseconds to wait after the text input has changed before calling the update handler
  * @param function the update handler
  */
-function TextInputDelayed( { delay, handleUpdate } ) {
+function TextInputDelayed( { delay, handleUpdate, placeholder, value, cssClass } ) {
 
 	/**
 	 * @param object whose current property holds the timeoutID of the currently scheduled timeout
@@ -84,7 +115,7 @@ function TextInputDelayed( { delay, handleUpdate } ) {
 	/**
 	 * @param array the current state and a set function to update the state based on the text input field
 	 */
-	const [text, setText] = useState( '' );
+	const [text, setText] = useState( typeof value !== 'undefined' ? value : '' );
 
 	// Make sure that delay has an appropriate value
 	if ( isNaN( delay ) || delay < 0 ) {
@@ -127,19 +158,32 @@ function TextInputDelayed( { delay, handleUpdate } ) {
 		}
 	}
 
+	const className = typeof cssClass !== 'undefined' ? cssClass : 'text-input-delayed';
+
 	// Render a text input field and register the change event handler
 	return (
-		<input className="product-search-field" type="text" value={text} onChange={handleChange} placeholder="Search products &hellip;"/>
+		<input className={className} type="text" value={text} onChange={handleChange} placeholder={placeholder} />
 	);
+}
+
+function trailingSlash( s ) {
+	if ( s.substr( -1 ) !== '/' ) {
+		s = s + '/';
+	}
+	return s;
 }
 
 export default function Shop() {
 
+	const [shopUrl, setShopUrl] = useState( 'https://demo.itthinx.com/wps' );
+
 	const [query, setQuery] = useState( '' );
+
+	const [terms, setTerms] = useState( [] );
 
 	const [data, setData] = useState( null );
 
-	const url = 'http://qi/~kento/wps/wp-json/wps/v1/shop';
+	const suffix = 'wp-json/wps/v1/shop';
 
 	useEffect(
 		() => {
@@ -149,8 +193,19 @@ export default function Shop() {
 			//
 			// @see https://developer.mozilla.org/en-US/docs/Web/API/Window/fetch
 			//
+			let _url = new URL( trailingSlash( shopUrl ) + suffix );
+			let searchParams = new URLSearchParams( _url.search );
+			if ( query ) {
+				searchParams.append( 'q', query );
+			}
+			if ( terms ) {
+				let termsParam = [ { 'taxonomy' : 'product_cat', 't' : terms, 'id_by' : 'id' } ];
+				searchParams.append( 't', JSON.stringify( termsParam ) );
+			}
+			let urlParams = searchParams.toString();
+			const filterUrl = new URL(`${_url.origin}${_url.pathname}?${urlParams}`);
+			const fetchUrl = filterUrl.href;
 			const controller = new AbortController();
-			const fetchUrl = query ? url + '?q=' + query : url;
 			const promise = fetch(
 				fetchUrl,
 				{
@@ -160,9 +215,9 @@ export default function Shop() {
 			).then(
 				(response) => {
 					if ( response.ok ) {
-						console.log( 'shop response received' );
+						console.log( 'Shop response received' );
 					} else {
-						console.log( 'shop response FAILED' );
+						console.log( 'Shop response FAILED' );
 					}
 					return response.json();
 				}
@@ -186,7 +241,7 @@ export default function Shop() {
 				}
 			);
 		},
-		[query]
+		[shopUrl, query, terms]
 	);
 
 	/**
@@ -198,18 +253,64 @@ export default function Shop() {
 		setQuery( input );
 	}
 
-	const products = data !== null && data.products !== 'undefined' && data.products.products !== 'undefined' ? data.products.products : [];
+	/**
+	 * Toggle term selection.
+	 *
+	 * @param int term_id
+	 */
+	function handleTermClick( term_id ) {
+		const newTerms = [...terms];
+		// toggle term
+		if ( newTerms.includes( term_id ) ) {
+			for ( let i = 0; i < newTerms.length; i++ ) {
+				if ( newTerms[i] === term_id ) {
+					newTerms.splice( i, 1 );
+				}
+			}
+		} else {
+			newTerms.push( term_id );
+		}
+		setTerms(newTerms);
+	}
 
-	const total = data !== null && data.products !== 'undefined' && data.products.total !== 'undefined' ? data.products.total : 0;
+	function handleShopUrlUpdate( url ) {
+		console.log( url );
+		setShopUrl( url );
+	}
 
-	const count = data !== null && data.products !== 'undefined' && data.products.products !== 'undefined' ? data.products.products.length : 0;
+	const products = data !== null && typeof data.products !== 'undefined' && typeof data.products.products !== 'undefined' ? data.products.products : [];
+
+	let categories = [];
+	if ( data !== null && typeof data.terms !== 'undefined' && data.terms.length > 0 ) {
+		for ( let i = 0; i < data.terms.length; i++ ) {
+			let terms = data.terms[0];
+			if ( typeof terms.taxonomy !== 'undefined' && terms.taxonomy === 'product_cat' ) {
+				if ( typeof terms.terms !== 'undefined' ) {
+					categories = terms.terms;
+				}
+			}
+		}
+	}
+
+	const total = data !== null && typeof data.products !== 'undefined' && typeof data.products.total !== 'undefined' ? data.products.total : 0;
+
+	const count = data !== null && typeof data.products !== 'undefined' && typeof data.products.products !== 'undefined' ? data.products.products.length : 0;
 
 	return (
 		<>
-			<TextInputDelayed delay="500" handleUpdate={handleUpdate} />
-			<Products items={products}/>
+			<TextInputDelayed delay="500" handleUpdate={handleUpdate} placeholder="Search products &hellip;" />
+			<Categories items={categories} handleTermClick={handleTermClick} terms={terms} />
+			<Products items={products} />
 			<p className="counts">
 				Showing {count} of {total}
+			</p>
+			<p className="endpoint-info">
+				This example uses the endpoint of the demo site for the <a href="https://woocommerce.com/product/woocommerce-product-search">WooCommerce Product Search</a> extension by default.
+				You can input the URL of your own site below.
+			</p>
+			<TextInputDelayed cssClass="endpoint-input" delay="1000" handleUpdate={handleShopUrlUpdate} placeholder="Shop URL" value={shopUrl}/>
+			<p>
+				REST API Endpoint: <a className="endpoint-url" href={ trailingSlash( shopUrl ) + suffix }>{ trailingSlash( shopUrl ) + suffix }</a>
 			</p>
 		</>
 	);

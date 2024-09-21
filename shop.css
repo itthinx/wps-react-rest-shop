@@ -35,7 +35,7 @@ h1 {
 	object-fit: cover;
 }
 
-.product-search-field {
+.text-input-delayed {
 	width: 532px;
 	border: 2px solid #cdf;
 	font-size: 24px;
@@ -77,4 +77,29 @@ footer div.separator {
 	border-top: 2px solid #cdf;
 	height: 24px;
 	margin: auto;
+}
+
+.active {
+	color: #3b6cce;
+	font-weight: bold;
+}
+
+a.endpoint-url {
+	font-family: monospace;
+	text-decoration: underline;
+	color: #3b6cce;
+}
+
+.endpoint-info a {
+	text-decoration: underline;
+	color: #3b6cce;
+}
+
+.endpoint-input {
+	width: 532px;
+	border: 1px solid #cdf;
+	font-size: 18px;
+	font-family: sans-serif;
+	padding: 8px;
+	margin: 16px;
 }
