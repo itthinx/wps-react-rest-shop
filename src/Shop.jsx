@@ -120,6 +120,52 @@ function Category ( { item, handleTermClick, terms } ) {
 }
 
 /**
+ * Colors container component.
+ */
+function Colors ( { items, handleTermClick, terms } ) {
+	return (
+			<div className="colors">
+			{
+				items.map(
+					item => <Color key={item.id} item={item} handleTermClick={handleTermClick} terms={terms} />
+				)
+			}
+			</div>
+		);
+}
+
+/**
+ * Color component.
+ */
+function Color ( { item, handleTermClick, terms } ) {
+
+	function onClick( event ) {
+		handleTermClick( item.id );
+	}
+
+	let cssClass = "color";
+
+	if ( terms.includes( item.id ) ) {
+		cssClass += ' active';
+	}
+
+	let image = null;
+
+	let img = '';
+	if ( item.images !== 'undefined' && Array.isArray( item.images ) && item.images.length > 0 ) {
+		image = item.images[0];
+		img = <img className="color-image" src={image.src} alt={image.alt} title={image.name} />;
+	}
+
+	return (
+		<div className={cssClass} onClick={onClick}>
+			{img}
+			<span className="name">{item.name}</span> <span className="count">{item.count}</span>
+		</div>
+	);
+}
+
+/**
  * A text input field functional React component that allows to schedule a delayed call to an update handler,
  * so we don't have to react on every single keystroke right when it happens.
  *
@@ -212,6 +258,8 @@ export default function Shop() {
 
 	const [terms, setTerms] = useState( [] );
 
+	const [colors, setColors] = useState( [] );
+
 	const [data, setData] = useState( null );
 
 	const suffix = 'wp-json/wps/v1/shop';
@@ -229,8 +277,14 @@ export default function Shop() {
 			if ( query ) {
 				searchParams.append( 'q', query );
 			}
+			let termsParam = [];
 			if ( terms ) {
-				let termsParam = [ { 'taxonomy' : 'product_cat', 't' : terms, 'id_by' : 'id' } ];
+				termsParam.push( { 'taxonomy' : 'product_cat', 't' : terms, 'id_by' : 'id' } );
+			}
+			if ( colors ) {
+				termsParam.push( { 'taxonomy' : 'pa_color', 't' : colors, 'id_by' : 'id' } );
+			}
+			if ( termsParam.length > 0 ) {
 				searchParams.append( 't', JSON.stringify( termsParam ) );
 			}
 			let urlParams = searchParams.toString();
@@ -272,7 +326,7 @@ export default function Shop() {
 				}
 			);
 		},
-		[shopUrl, query, terms]
+		[shopUrl, query, terms, colors]
 	);
 
 	/**
@@ -301,11 +355,31 @@ export default function Shop() {
 		} else {
 			newTerms.push( term_id );
 		}
-		setTerms(newTerms);
+		setTerms( newTerms );
 	}
 
+	/**
+	 * Toggle color selection.
+	 */
+	function handleColorClick( term_id ) {
+		const newTerms = [...colors];
+		// toggle color
+		if ( newTerms.includes( term_id ) ) {
+			for ( let i = 0; i < newTerms.length; i++ ) {
+				if ( newTerms[i] === term_id ) {
+					newTerms.splice( i, 1 );
+				}
+			}
+		} else {
+			newTerms.push( term_id );
+		}
+		setColors( newTerms );
+	}
+
+	/**
+	 * Set the shop URL.
+	 */
 	function handleShopUrlUpdate( url ) {
-		console.log( url );
 		setShopUrl( url );
 	}
 
@@ -314,7 +388,7 @@ export default function Shop() {
 	let categories = [];
 	if ( data !== null && typeof data.terms !== 'undefined' && data.terms.length > 0 ) {
 		for ( let i = 0; i < data.terms.length; i++ ) {
-			let terms = data.terms[0];
+			let terms = data.terms[i];
 			if ( typeof terms.taxonomy !== 'undefined' && terms.taxonomy === 'product_cat' ) {
 				if ( typeof terms.terms !== 'undefined' ) {
 					categories = terms.terms;
@@ -323,6 +397,18 @@ export default function Shop() {
 		}
 	}
 
+	let color_terms = [];
+	if ( data !== null && typeof data.terms !== 'undefined' && data.terms.length > 0 ) {
+		for ( let i = 0; i < data.terms.length; i++ ) {
+			let terms = data.terms[i];
+			if ( typeof terms.taxonomy !== 'undefined' && terms.taxonomy === 'pa_color' ) {
+				if ( typeof terms.terms !== 'undefined' ) {
+					color_terms = terms.terms;
+				}
+			}
+		}
+	}
+console.log( color_terms );
 	const total = data !== null && typeof data.products !== 'undefined' && typeof data.products.total !== 'undefined' ? data.products.total : 0;
 
 	const count = data !== null && typeof data.products !== 'undefined' && typeof data.products.products !== 'undefined' ? data.products.products.length : 0;
@@ -331,12 +417,15 @@ export default function Shop() {
 		<>
 			<TextInputDelayed delay="500" handleUpdate={handleUpdate} placeholder="Search products &hellip;" />
 			<div className="showcase">
-				<Categories items={categories} handleTermClick={handleTermClick} terms={terms} />
+				<div className="filters">
+					<Categories items={categories} handleTermClick={handleTermClick} terms={terms} />
+					<Colors items={color_terms} handleTermClick={handleColorClick} terms={colors} />
+				</div>
 				<Products items={products} />
 			</div>
 			<p className="counts">
-							Showing {count} of {total}
-						</p>
+				Showing {count} of {total}
+			</p>
 			<p className="endpoint-info">
 				This example uses the endpoint of the demo site for the <a href="https://woocommerce.com/product/woocommerce-product-search">WooCommerce Product Search</a> extension by default.
 				You can input the URL of your own site below.

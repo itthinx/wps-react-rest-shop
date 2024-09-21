@@ -38,9 +38,12 @@ h1 {
 	flex-wrap: wrap;
 }
 
+.filters {
+	min-width: 192px;
+}
+
 .categories {
 	padding: 0 24px 12px 0;
-	min-width: 192px;
 }
 
 .category {
@@ -53,6 +56,7 @@ h1 {
 }
 .category.child {
 	padding-left: 16px;
+	font-size: 18px;
 }
 
 .category.active {
@@ -75,6 +79,61 @@ h1 {
 	font-weight: normal;
 	vertical-align: middle;
 	color: #bbb;
+}
+
+.colors {
+	padding: 0 24px 12px 0;
+}
+.color {
+	cursor: pointer;
+	font-size: 16px;
+	margin: 6px;
+}
+.color.active {
+	color: #3b6cce;
+}
+
+.color .name {
+	display: inline;
+	vertical-align: middle;
+	padding: 0 4px;
+}
+.color-image {
+	vertical-align: middle;
+	display: inline;
+	width: 32px;
+	height: 32px;
+	object-fit: cover;
+	border: 2px solid #eee;
+	padding: 2px;
+	margin: 2px;
+}
+.color .count {
+	font-size: 14px;
+	font-weight: normal;
+	vertical-align: middle;
+	color: #bbb;
+}
+
+@media (max-width: calc(512px + 192px + 111px) ) {
+	.filters {
+		display: flex;
+		flex-direction: row;
+		flex-wrap: nowrap;
+	}
+	.colors {
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		align-content: flex-start;
+	}
+	.color {
+		margin: 4px;
+	}
+	.color-image {
+		width: 16px;
+		height: 16px;
+	}
 }
 
 .products {
