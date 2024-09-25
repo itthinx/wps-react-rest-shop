@@ -124,14 +124,14 @@ function Category ( { item, handleTermClick, terms } ) {
  */
 function Colors ( { items, handleTermClick, terms } ) {
 	return (
-			<div className="colors">
-			{
-				items.map(
-					item => <Color key={item.id} item={item} handleTermClick={handleTermClick} terms={terms} />
-				)
-			}
-			</div>
-		);
+		<div className="colors">
+		{
+			items.map(
+				item => <Color key={item.id} item={item} handleTermClick={handleTermClick} terms={terms} />
+			)
+		}
+		</div>
+	);
 }
 
 /**
@@ -285,8 +285,22 @@ export default function Shop() {
 				termsParam.push( { 'taxonomy' : 'pa_color', 't' : colors, 'id_by' : 'id' } );
 			}
 			if ( termsParam.length > 0 ) {
+				// set term constraints
 				searchParams.append( 't', JSON.stringify( termsParam ) );
+				// don't limit colors or sizes to those selected using the 'except' parameter for those taxonomies, so we can have multiple choices there
+				searchParams.append(
+					'taxonomy-data',
+					JSON.stringify(
+						[
+							{ 'taxonomy' : 'product_cat' },
+							{ 'taxonomy' : 'product_tag' },
+							{ 'taxonomy' : 'pa_color', 'except' : 'pa_color' },
+							{ 'taxonomy' : 'pa_size', 'except' : 'pa_size' }
+						]
+					)
+				);
 			}
+
 			let urlParams = searchParams.toString();
 			const filterUrl = new URL(`${_url.origin}${_url.pathname}?${urlParams}`);
 			const fetchUrl = filterUrl.href;
@@ -344,15 +358,39 @@ export default function Shop() {
 	 * @param int term_id
 	 */
 	function handleTermClick( term_id ) {
+		term_id = parseInt( term_id );
 		const newTerms = [...terms];
 		// toggle term
 		if ( newTerms.includes( term_id ) ) {
 			for ( let i = 0; i < newTerms.length; i++ ) {
-				if ( newTerms[i] === term_id ) {
+				if ( newTerms[i] == term_id ) {
 					newTerms.splice( i, 1 );
 				}
 			}
 		} else {
+			// remove all ancestors of term_id
+			let ancestors = term_id in categories_map ? categories_map[term_id] : [];
+			for ( let i = 0; i < ancestors.length; i++ ) {
+				if ( newTerms.includes( ancestors[i] ) ) {
+					for ( let k = 0; k < newTerms.length; k++ ) {
+						if ( newTerms[k] == ancestors[i] ) {
+							newTerms.splice( k, 1 );
+						}
+					}
+				}
+			}
+			// remove all children of term_id
+			for ( let x in categories_map ) {
+				// is term_id a parent
+				if ( categories_map[x].includes( term_id ) ) {
+					for ( let k = 0; k < newTerms.length; k++ ) {
+						if ( newTerms[k] == x ) {
+							newTerms.splice( k, 1 );
+						}
+					}
+				}
+			}
+			// add the term_id
 			newTerms.push( term_id );
 		}
 		setTerms( newTerms );
@@ -362,11 +400,12 @@ export default function Shop() {
 	 * Toggle color selection.
 	 */
 	function handleColorClick( term_id ) {
+		term_id = parseInt( term_id );
 		const newTerms = [...colors];
 		// toggle color
 		if ( newTerms.includes( term_id ) ) {
 			for ( let i = 0; i < newTerms.length; i++ ) {
-				if ( newTerms[i] === term_id ) {
+				if ( newTerms[i] == term_id ) {
 					newTerms.splice( i, 1 );
 				}
 			}
@@ -383,6 +422,47 @@ export default function Shop() {
 		setShopUrl( url );
 	}
 
+	/**
+	 * Map children to all their ancestors.
+	 *
+	 * @param array terms
+	 *
+	 * @return array
+	 */
+	function get_parent_map( terms ) {
+		let map = [];
+		for ( let i = 0; i < terms.length; i++ ) {
+			let term = terms[i];
+			if ( !term.parent ) {
+				map[term.id] = [];
+			} else {
+				map[term.id] = [term.parent];
+			}
+		}
+		let scan = true;
+		while ( scan ) {
+			scan = false;
+			for ( let id in map ) {
+				let parents = map[id];
+				if ( parents.length > 0 ) {
+					for ( let k in parents ) {
+						let parent = parents[k];
+						if ( parent in map ) { // key exists in map
+							for ( let x in map[parent] ) {
+								if ( !parents.includes( map[parent][x] ) ) {
+									parents.push( map[parent][x] );
+									map[id] = parents;
+									scan = true;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return map;
+	}
+
 	const products = data !== null && typeof data.products !== 'undefined' && typeof data.products.products !== 'undefined' ? data.products.products : [];
 
 	let categories = [];
@@ -397,6 +477,8 @@ export default function Shop() {
 		}
 	}
 
+	let categories_map = get_parent_map( categories );
+
 	let color_terms = [];
 	if ( data !== null && typeof data.terms !== 'undefined' && data.terms.length > 0 ) {
 		for ( let i = 0; i < data.terms.length; i++ ) {
@@ -408,7 +490,7 @@ export default function Shop() {
 			}
 		}
 	}
-console.log( color_terms );
+
 	const total = data !== null && typeof data.products !== 'undefined' && typeof data.products.total !== 'undefined' ? data.products.total : 0;
 
 	const count = data !== null && typeof data.products !== 'undefined' && typeof data.products.products !== 'undefined' ? data.products.products.length : 0;
