@@ -479,6 +479,7 @@ export default function Shop() {
 		}
 	}
 
+	// we use this map to impose navigation constraints on categories when "moving"" within the hierarchy
 	let categories_map = get_parent_map( categories );
 
 	let color_terms = [];
