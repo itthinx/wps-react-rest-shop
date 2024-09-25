@@ -248,6 +248,24 @@ function trailingSlash( s ) {
 }
 
 /**
+ * Remove an item from an array of items.
+ *
+ * @param mixed item
+ * @param array items
+ *
+ * @return array
+ */
+function removeItem( item, items ) {
+	if ( Array.isArray( items ) && items.length > 0 ) {
+		for ( let i = 0; i < items.length; i++ ) {
+			if ( items[i] == item ) {
+				items.splice( i, 1 );
+			}
+		}
+	}
+}
+
+/**
  * Shop React Component.
  */
 export default function Shop() {
@@ -362,32 +380,20 @@ export default function Shop() {
 		const newTerms = [...terms];
 		// toggle term
 		if ( newTerms.includes( term_id ) ) {
-			for ( let i = 0; i < newTerms.length; i++ ) {
-				if ( newTerms[i] == term_id ) {
-					newTerms.splice( i, 1 );
-				}
-			}
+			removeItem( term_id, newTerms );
 		} else {
 			// remove all ancestors of term_id
 			let ancestors = term_id in categories_map ? categories_map[term_id] : [];
 			for ( let i = 0; i < ancestors.length; i++ ) {
 				if ( newTerms.includes( ancestors[i] ) ) {
-					for ( let k = 0; k < newTerms.length; k++ ) {
-						if ( newTerms[k] == ancestors[i] ) {
-							newTerms.splice( k, 1 );
-						}
-					}
+					removeItem( ancestors[i], newTerms );
 				}
 			}
 			// remove all children of term_id
 			for ( let x in categories_map ) {
 				// is term_id a parent
 				if ( categories_map[x].includes( term_id ) ) {
-					for ( let k = 0; k < newTerms.length; k++ ) {
-						if ( newTerms[k] == x ) {
-							newTerms.splice( k, 1 );
-						}
-					}
+					removeItem( x, newTerms );
 				}
 			}
 			// add the term_id
@@ -404,11 +410,7 @@ export default function Shop() {
 		const newTerms = [...colors];
 		// toggle color
 		if ( newTerms.includes( term_id ) ) {
-			for ( let i = 0; i < newTerms.length; i++ ) {
-				if ( newTerms[i] == term_id ) {
-					newTerms.splice( i, 1 );
-				}
-			}
+			removeItem( term_id, newTerms );
 		} else {
 			newTerms.push( term_id );
 		}
