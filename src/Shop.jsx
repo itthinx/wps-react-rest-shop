@@ -166,6 +166,43 @@ function Color ( { item, handleTermClick, terms } ) {
 }
 
 /**
+ * Sizes container component.
+ */
+function Sizes ( { items, handleTermClick, terms } ) {
+	return (
+		<div className="sizes">
+		{
+			items.map(
+				item => <Size key={item.id} item={item} handleTermClick={handleTermClick} terms={terms} />
+			)
+		}
+		</div>
+	);
+}
+
+/**
+ * Size component.
+ */
+function Size ( { item, handleTermClick, terms } ) {
+
+	function onClick( event ) {
+		handleTermClick( item.id );
+	}
+
+	let cssClass = "size";
+
+	if ( terms.includes( item.id ) ) {
+		cssClass += ' active';
+	}
+
+	return (
+		<div className={cssClass} onClick={onClick}>
+			<span className="name">{item.name}</span> <span className="count">{item.count}</span>
+		</div>
+	);
+}
+
+/**
  * A text input field functional React component that allows to schedule a delayed call to an update handler,
  * so we don't have to react on every single keystroke right when it happens.
  *
@@ -278,6 +315,8 @@ export default function Shop() {
 
 	const [colors, setColors] = useState( [] );
 
+	const [sizes, setSizes] = useState( [] );
+
 	const [data, setData] = useState( null );
 
 	const suffix = 'wp-json/wps/v1/shop';
@@ -301,6 +340,9 @@ export default function Shop() {
 			}
 			if ( colors ) {
 				termsParam.push( { 'taxonomy' : 'pa_color', 't' : colors, 'id_by' : 'id' } );
+			}
+			if ( sizes ) {
+				termsParam.push( { 'taxonomy' : 'pa_size', 't' : sizes, 'id_by' : 'id' } );
 			}
 			if ( termsParam.length > 0 ) {
 				// set term constraints
@@ -358,7 +400,7 @@ export default function Shop() {
 				}
 			);
 		},
-		[shopUrl, query, terms, colors]
+		[shopUrl, query, terms, colors, sizes]
 	);
 
 	/**
@@ -415,6 +457,21 @@ export default function Shop() {
 			newTerms.push( term_id );
 		}
 		setColors( newTerms );
+	}
+
+	/**
+	 * Toggle size selection.
+	 */
+	function handleSizeClick( term_id ) {
+		term_id = parseInt( term_id );
+		const newTerms = [...sizes];
+		// toggle color
+		if ( newTerms.includes( term_id ) ) {
+			removeItem( term_id, newTerms );
+		} else {
+			newTerms.push( term_id );
+		}
+		setSizes( newTerms );
 	}
 
 	/**
@@ -494,6 +551,18 @@ export default function Shop() {
 		}
 	}
 
+	let size_terms = [];
+	if ( data !== null && typeof data.terms !== 'undefined' && data.terms.length > 0 ) {
+		for ( let i = 0; i < data.terms.length; i++ ) {
+			let terms = data.terms[i];
+			if ( typeof terms.taxonomy !== 'undefined' && terms.taxonomy === 'pa_size' ) {
+				if ( typeof terms.terms !== 'undefined' ) {
+					size_terms = terms.terms;
+				}
+			}
+		}
+	}
+
 	const total = data !== null && typeof data.products !== 'undefined' && typeof data.products.total !== 'undefined' ? data.products.total : 0;
 
 	const count = data !== null && typeof data.products !== 'undefined' && typeof data.products.products !== 'undefined' ? data.products.products.length : 0;
@@ -505,6 +574,7 @@ export default function Shop() {
 				<div className="filters">
 					<Categories items={categories} handleTermClick={handleTermClick} terms={terms} />
 					<Colors items={color_terms} handleTermClick={handleColorClick} terms={colors} />
+					<Sizes items={size_terms} handleTermClick={handleSizeClick} terms={sizes} />
 				</div>
 				<Products items={products} />
 			</div>

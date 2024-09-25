@@ -115,6 +115,30 @@ h1 {
 	color: #bbb;
 }
 
+.sizes {
+	padding: 0 24px 12px 0;
+}
+.size {
+	cursor: pointer;
+	font-size: 16px;
+	margin: 6px;
+}
+.size.active {
+	color: #3b6cce;
+}
+
+.size .name {
+	display: inline;
+	vertical-align: middle;
+	padding: 0 4px;
+}
+.size .count {
+	font-size: 14px;
+	font-weight: normal;
+	vertical-align: middle;
+	color: #bbb;
+}
+
 @media (max-width: calc(512px + 192px + 111px) ) {
 	.filters {
 		display: flex;
@@ -133,6 +157,15 @@ h1 {
 	.color-image {
 		width: 16px;
 		height: 16px;
+	}
+	.sizes {
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		align-content: flex-start;
+	}
+	.size {
+		margin: 4px;
 	}
 }
 
