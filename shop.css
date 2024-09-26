@@ -245,7 +245,7 @@ div.prices {
 }
 div.prices input[type="text"] {
 	width: 3em;
-	text-align: right;
+	text-align: center;
 	font-size: 16px;
 }
 
