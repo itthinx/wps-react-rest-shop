@@ -511,7 +511,7 @@ export default function Shop() {
 		const newPrices = {...prices};
 		if ( typeof values.min !== 'undefined' ) {
 			let min = parseFloat( values.min );
-			if ( min !== NaN ) {
+			if ( !isNaN( min ) ) {
 				newPrices.min = min;
 			} else {
 				newPrices.min = '';
@@ -519,7 +519,7 @@ export default function Shop() {
 		}
 		if ( typeof values.max !== 'undefined' ) {
 			let max = parseFloat( values.max );
-			if ( max !== NaN ) {
+			if ( !isNaN( max ) ) {
 				newPrices.max = max;
 			} else {
 				newPrices.max = '';
