@@ -80,14 +80,14 @@ function Product( { item } ) {
  */
 function Categories ( { items, handleTermClick, terms } ) {
 	return (
-			<div className="categories">
-			{
-				items.map(
-					item => <Category key={item.id} item={item} handleTermClick={handleTermClick} terms={terms} />
-				)
-			}
-			</div>
-		);
+		<div className="categories">
+		{
+			items.map(
+				item => <Category key={item.id} item={item} handleTermClick={handleTermClick} terms={terms} />
+			)
+		}
+		</div>
+	);
 }
 
 /**
@@ -204,7 +204,10 @@ function Size ( { item, handleTermClick, terms } ) {
 	);
 }
 
-function Prices ( { handlePrices } ) {
+/**
+ * Prices component.
+ */
+function Prices ( { minPrice, maxPrice, handlePrices } ) {
 
 	function handleMinPrice( price ) {
 		handlePrices( { min : price } );
@@ -217,9 +220,29 @@ function Prices ( { handlePrices } ) {
 	return (
 		<div className="prices">
 			<span className="prices-heading">Price</span>
-			<TextInputDelayed delay="500" handleUpdate={handleMinPrice} placeholder="min" />
+			<TextInputDelayed id="min-price" delay="500" handleUpdate={handleMinPrice} placeholder="min" />
 			&mdash;
-			<TextInputDelayed delay="500" handleUpdate={handleMaxPrice} placeholder="max" />
+			<TextInputDelayed id="max-price" delay="500" handleUpdate={handleMaxPrice} placeholder="max" />
+		</div>
+	);
+}
+
+/**
+ * Reset filters.
+ */
+function Reset( { resetHandler } ) {
+
+	/**
+	 * Invoke the reset handler.
+	 */
+	function handleClick( event ) {
+		event.preventDefault();
+		resetHandler();
+	}
+
+	return (
+		<div className="reset">
+			<button className="button" name="reset" onClick={handleClick}>Reset</button>
 		</div>
 	);
 }
@@ -234,7 +257,7 @@ function Prices ( { handlePrices } ) {
  * @param string value current value
  * @param string cssClass CSS class to use
  */
-function TextInputDelayed( { delay, handleUpdate, placeholder, value, cssClass } ) {
+function TextInputDelayed( { delay, handleUpdate, placeholder, value, cssClass, id } ) {
 
 	/**
 	 * @param object whose current property holds the timeoutID of the currently scheduled timeout
@@ -289,9 +312,18 @@ function TextInputDelayed( { delay, handleUpdate, placeholder, value, cssClass }
 
 	const className = typeof cssClass !== 'undefined' ? cssClass : 'text-input-delayed';
 
+	document.addEventListener(
+		'reset',
+		(event) => {
+			if ( id === event.detail ) {
+				setText( '' );
+			}
+		}
+	);
+
 	// Render a text input field and register the change event handler
 	return (
-		<input className={className} type="text" value={text} onChange={handleChange} placeholder={placeholder} />
+		<input id={id} className={className} type="text" value={text} onChange={handleChange} placeholder={placeholder} />
 	);
 }
 
@@ -534,6 +566,20 @@ export default function Shop() {
 	}
 
 	/**
+	 * Clear filters.
+	 */
+	function handleReset() {
+		setTerms( [] );
+		setColors( [] );
+		setSizes( [] );
+		setPrices( { min: '', max: '' } );
+		let minResetEvent = new CustomEvent( 'reset', { detail : 'min-price' } );
+		document.dispatchEvent( minResetEvent );
+		let maxResetEvent = new CustomEvent( 'reset', { detail : 'max-price' } );
+		document.dispatchEvent( maxResetEvent );
+	}
+
+	/**
 	 * Set the shop URL.
 	 */
 	function handleShopUrlUpdate( url ) {
@@ -634,7 +680,8 @@ export default function Shop() {
 					<Categories items={categories} handleTermClick={handleTermClick} terms={terms} />
 					<Colors items={color_terms} handleTermClick={handleColorClick} terms={colors} />
 					<Sizes items={size_terms} handleTermClick={handleSizeClick} terms={sizes} />
-					<Prices handlePrices={handlePrices} />
+					<Prices minPrice={prices.min} maxPrice={prices.max} handlePrices={handlePrices} />
+					<Reset resetHandler={handleReset} />
 				</div>
 				<Products items={products} />
 			</div>

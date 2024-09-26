@@ -242,11 +242,29 @@ h1 {
 
 div.prices {
 	text-align: center;
+	align-content: center;
 }
 div.prices input[type="text"] {
 	width: 3em;
 	text-align: center;
 	font-size: 16px;
+}
+
+div.reset {
+	text-align: center;
+	align-content: center;
+}
+.reset .button {
+	padding: 12px;
+	background-color: #f0f0f0;
+	border-radius: 2px;
+	cursor: pointer;
+	text-align: center;
+	font-size: 14px;
+}
+
+.reset .button:hover {
+	background-color: #e0e0e0;
 }
 
 .counts {
