@@ -359,13 +359,13 @@ export default function Shop() {
 				searchParams.append( 'q', query );
 			}
 			let termsParam = [];
-			if ( terms ) {
+			if ( terms.length > 0 ) {
 				termsParam.push( { 'taxonomy' : 'product_cat', 't' : terms, 'id_by' : 'id' } );
 			}
-			if ( colors ) {
+			if ( colors.length > 0 ) {
 				termsParam.push( { 'taxonomy' : 'pa_color', 't' : colors, 'id_by' : 'id' } );
 			}
-			if ( sizes ) {
+			if ( sizes.length > 0 ) {
 				termsParam.push( { 'taxonomy' : 'pa_size', 't' : sizes, 'id_by' : 'id' } );
 			}
 			if ( prices.min !== '' ) {
