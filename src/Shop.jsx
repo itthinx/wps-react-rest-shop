@@ -69,6 +69,8 @@ function Product( { item } ) {
 					{item.name}
 				</a>
 			</div>
+			<div className="price" dangerouslySetInnerHTML={{ __html: item.price_html}}>
+			</div>
 		</div>
 	);
 }
@@ -202,6 +204,26 @@ function Size ( { item, handleTermClick, terms } ) {
 	);
 }
 
+function Prices ( { handlePrices } ) {
+
+	function handleMinPrice( price ) {
+		handlePrices( { min : price } );
+	}
+
+	function handleMaxPrice( price ) {
+		handlePrices( { max : price } );
+	}
+
+	return (
+		<div className="prices">
+			<span className="prices-heading">Price</span>
+			<TextInputDelayed delay="500" handleUpdate={handleMinPrice} placeholder="min" />
+			&mdash;
+			<TextInputDelayed delay="500" handleUpdate={handleMaxPrice} placeholder="max" />
+		</div>
+	);
+}
+
 /**
  * A text input field functional React component that allows to schedule a delayed call to an update handler,
  * so we don't have to react on every single keystroke right when it happens.
@@ -244,7 +266,7 @@ function TextInputDelayed( { delay, handleUpdate, placeholder, value, cssClass }
 		const input = event.target.value;
 
 		// Update the input state
-		setText( input ); // @todo trim
+		setText( input );
 
 		// Clear a previously scheduled timeout
 		if ( timeout.current !== null ) {
@@ -317,6 +339,8 @@ export default function Shop() {
 
 	const [sizes, setSizes] = useState( [] );
 
+	const [prices, setPrices] = useState( { min : '', max : '' } );
+
 	const [data, setData] = useState( null );
 
 	const suffix = 'wp-json/wps/v1/shop';
@@ -343,6 +367,12 @@ export default function Shop() {
 			}
 			if ( sizes ) {
 				termsParam.push( { 'taxonomy' : 'pa_size', 't' : sizes, 'id_by' : 'id' } );
+			}
+			if ( prices.min !== '' ) {
+				searchParams.append( 'min_price', prices.min );
+			}
+			if ( prices.max !== '' ) {
+				searchParams.append( 'max_price', prices.max );
 			}
 			if ( termsParam.length > 0 ) {
 				// set term constraints
@@ -400,7 +430,7 @@ export default function Shop() {
 				}
 			);
 		},
-		[shopUrl, query, terms, colors, sizes]
+		[shopUrl, query, terms, colors, sizes, prices]
 	);
 
 	/**
@@ -472,6 +502,35 @@ export default function Shop() {
 			newTerms.push( term_id );
 		}
 		setSizes( newTerms );
+	}
+
+	/**
+	 * Determine price range.
+	 */
+	function handlePrices( values ) {
+		const newPrices = {...prices};
+		if ( typeof values.min !== 'undefined' ) {
+			let min = parseFloat( values.min );
+			if ( min !== NaN ) {
+				newPrices.min = min;
+			} else {
+				newPrices.min = '';
+			}
+		}
+		if ( typeof values.max !== 'undefined' ) {
+			let max = parseFloat( values.max );
+			if ( max !== NaN ) {
+				newPrices.max = max;
+			} else {
+				newPrices.max = '';
+			}
+		}
+		if ( newPrices.max !== '' && newPrices.min > newPrices.max ) {
+			newPrices.max = '';
+		}
+		if ( newPrices.min !== prices.min || newPrices.max !== prices.max ) {
+			setPrices( newPrices );
+		}
 	}
 
 	/**
@@ -575,6 +634,7 @@ export default function Shop() {
 					<Categories items={categories} handleTermClick={handleTermClick} terms={terms} />
 					<Colors items={color_terms} handleTermClick={handleColorClick} terms={colors} />
 					<Sizes items={size_terms} handleTermClick={handleSizeClick} terms={sizes} />
+					<Prices handlePrices={handlePrices} />
 				</div>
 				<Products items={products} />
 			</div>
