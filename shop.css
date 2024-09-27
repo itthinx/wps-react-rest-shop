@@ -284,12 +284,16 @@ footer ul {
 	list-style: inside;
 }
 
-footer div.separator {
+div.separator {
 	text-align: center;
 	width: min( 50%, 960px);
 	border-top: 2px solid #cdf;
 	height: 24px;
-	margin: auto;
+	margin: 36px auto;
+}
+div.separator.fine {
+	border-top: 1px dotted #cdf;
+	margin: 16px auto;
 }
 
 a.endpoint-url {
@@ -340,7 +344,7 @@ del {
 	align-items: center;
 	align-content: center;
 	column-gap: 16px;
-	font-size: 20px;
+	font-size: 22px;
 }
 
 .pagination ul li {

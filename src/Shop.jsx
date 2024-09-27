@@ -730,6 +730,7 @@ export default function Shop() {
 			<div className="pagination">
 				<Pagination page={page} total={total} setPage={setPage} />
 			</div>
+			<div class="separator fine"></div>
 			<p className="endpoint-info">
 				This example uses the endpoint of the demo site for the <a href="https://woocommerce.com/product/woocommerce-product-search">WooCommerce Product Search</a> extension by default.
 				You can input the URL of your own site below.
