@@ -21,6 +21,8 @@ import { useState } from 'react';
 import { useEffect } from 'react';
 import { useRef } from 'react';
 
+const per_page = 10;
+
 /**
  * Products container component.
  */
@@ -248,6 +250,32 @@ function Reset( { resetHandler } ) {
 }
 
 /**
+ * Pagination component.
+ *
+ * @param int page current page
+ * @param int total number of products
+ */
+function Pagination( { page, total, setPage }) {
+	let n = Math.ceil( total / per_page );
+	let pages = [];
+	for ( let i = 1; i <= n; i++ ) {
+		pages.push( { current : page === i, number : i } );
+	}
+	return (
+		<ul>
+		{
+			pages.map(
+				item =>
+					<li className={item.current ? 'current' : '' } key={item.number} onClick={ () => { setPage( item.number ); } }>
+						{ item.number }
+					</li>
+			)
+		}
+		</ul>
+	);
+}
+
+/**
  * A text input field functional React component that allows to schedule a delayed call to an update handler,
  * so we don't have to react on every single keystroke right when it happens.
  *
@@ -375,6 +403,8 @@ export default function Shop() {
 
 	const [data, setData] = useState( null );
 
+	const [page, setPage] = useState( 1 );
+
 	const suffix = 'wp-json/wps/v1/shop';
 
 	useEffect(
@@ -405,6 +435,9 @@ export default function Shop() {
 			}
 			if ( prices.max !== '' ) {
 				searchParams.append( 'max_price', prices.max );
+			}
+			if ( page > 1 ) {
+				searchParams.append( 'page', page );
 			}
 			if ( termsParam.length > 0 ) {
 				// set term constraints
@@ -462,7 +495,7 @@ export default function Shop() {
 				}
 			);
 		},
-		[shopUrl, query, terms, colors, sizes, prices]
+		[shopUrl, query, terms, colors, sizes, prices, page]
 	);
 
 	/**
@@ -577,6 +610,7 @@ export default function Shop() {
 		document.dispatchEvent( minResetEvent );
 		let maxResetEvent = new CustomEvent( 'reset', { detail : 'max-price' } );
 		document.dispatchEvent( maxResetEvent );
+		setPage( 1 );
 	}
 
 	/**
@@ -672,6 +706,11 @@ export default function Shop() {
 
 	const count = data !== null && typeof data.products !== 'undefined' && typeof data.products.products !== 'undefined' ? data.products.products.length : 0;
 
+	let counts = '';
+	if ( count > 0 ) {
+		counts = <>Showing {(page-1)*per_page+1} &ndash; {(page-1)*per_page + count} of {total}</>;
+	}
+
 	return (
 		<>
 			<TextInputDelayed delay="500" handleUpdate={handleUpdate} placeholder="Search products &hellip;" />
@@ -685,9 +724,12 @@ export default function Shop() {
 				</div>
 				<Products items={products} />
 			</div>
-			<p className="counts">
-				Showing {count} of {total}
-			</p>
+			<div className="counts">
+				{counts}
+			</div>
+			<div className="pagination">
+				<Pagination page={page} total={total} setPage={setPage} />
+			</div>
 			<p className="endpoint-info">
 				This example uses the endpoint of the demo site for the <a href="https://woocommerce.com/product/woocommerce-product-search">WooCommerce Product Search</a> extension by default.
 				You can input the URL of your own site below.

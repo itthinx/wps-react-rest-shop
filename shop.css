@@ -267,11 +267,6 @@ div.reset {
 	background-color: #e0e0e0;
 }
 
-.counts {
-	padding: 32px;
-	margin: 16px;
-}
-
 footer {
 	padding: 1em;
 	text-align: center;
@@ -324,4 +319,37 @@ a.endpoint-url {
 
 del {
 	text-decoration: line-through;
+}
+
+.counts {
+	padding: 4px;
+	margin: 32px 0 4px 0;
+	color: #999;
+}
+
+.pagination {
+	margin: 4px 0 48px 0;
+}
+
+.pagination ul {
+	list-style: none;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+	justify-content: center;
+	align-items: center;
+	align-content: center;
+	column-gap: 16px;
+	font-size: 20px;
+}
+
+.pagination ul li {
+	text-decoration: underline;
+	cursor: pointer;
+	color: #666;
+}
+.pagination ul li.current {
+	text-decoration: none;
+	cursor: unset;
+	color: #333;
 }
