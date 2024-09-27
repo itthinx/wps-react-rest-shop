@@ -602,6 +602,9 @@ export default function Shop() {
 	 * Clear filters.
 	 */
 	function handleReset() {
+		setQuery( '' );
+		let queryResetEvent = new CustomEvent( 'reset', { detail : 'product-search-field' } );
+		document.dispatchEvent( queryResetEvent );
 		setTerms( [] );
 		setColors( [] );
 		setSizes( [] );
@@ -706,14 +709,14 @@ export default function Shop() {
 
 	const count = data !== null && typeof data.products !== 'undefined' && typeof data.products.products !== 'undefined' ? data.products.products.length : 0;
 
-	let counts = '';
+	let counts = <>No results</>;
 	if ( count > 0 ) {
 		counts = <>Showing {(page-1)*per_page+1} &ndash; {(page-1)*per_page + count} of {total}</>;
 	}
 
 	return (
 		<>
-			<TextInputDelayed delay="500" handleUpdate={handleUpdate} placeholder="Search products &hellip;" />
+			<TextInputDelayed id="product-search-field" delay="500" handleUpdate={handleUpdate} placeholder="Search products &hellip;" />
 			<div className="showcase">
 				<div className="filters">
 					<Categories items={categories} handleTermClick={handleTermClick} terms={terms} />
