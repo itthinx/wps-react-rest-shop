@@ -26,5 +26,4 @@ jobs:
       run: |
         npm install
         npm run build
-		npx webpack
-  
+        npx webpack
